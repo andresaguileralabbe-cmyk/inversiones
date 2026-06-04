@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Inversiones · Andrés</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: #080C14; color: #CBD5E1; font-family: 'DM Mono', monospace; padding-bottom: 60px; min-height: 100vh; }
+    .num { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.03em; }
+    .muted { color: #475569; }
+    .card { background: #0E1420; border: 1px solid #1A2235; border-radius: 14px; }
+    .bar { height: 6px; background: #1A2235; border-radius: 3px; overflow: hidden; }
+    .fill { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    .tab-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 7px 11px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; color: #475569; }
+    .tab-btn.active { background: #1A2235; color: #38BDF8; }
+    .adj { background: #0E1420; border: 1px solid #1A2235; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-family: 'DM Mono', monospace; cursor: pointer; }
+    .adj:active { background: #1A2235; }
+    .edit-input { background: transparent; border: none; border-bottom: 1px solid #1A2235; color: #F1F5F9; font-family: 'DM Mono', monospace; font-size: 13px; width: 100%; outline: none; padding: 2px 0; text-align: right; transition: border-color 0.2s; }
+    .edit-input:focus { border-bottom-color: #38BDF8; }
+    .tab-content { display: none; animation: fu 0.35s ease forwards; }
+    .tab-content.active { display: block; }
+    @keyframes fu { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .hero { background: linear-gradient(180deg,#0D1929 0%,#080C14 100%); padding: 28px 20px 18px; border-bottom: 1px solid #1A2235; }
+    .inner { max-width: 540px; margin: 0 auto; }
+    .tabs-wrap { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; }
+    .tabs-wrap::-webkit-scrollbar { display: none; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .section-label { font-size: 10px; color: #475569; letter-spacing: 0.1em; margin-bottom: 10px; }
+    .fund-card { padding: 11px 14px; margin-bottom: 8px; }
+    .divider { height: 1px; background: #1A2235; margin: 10px 0; }
+    input[type=text], input[type=number] { -webkit-appearance: none; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="inner">
+    <div class="muted" style="font-size:10px;letter-spacing:0.14em;margin-bottom:6px">PLAN DE INVERSIÓN · ANDRÉS · 2025–2026</div>
+    <div class="num" style="font-size:36px;color:#F1F5F9;line-height:1;margin-bottom:12px">PATRIMONIO <span style="color:#38BDF8">TOTAL</span></div>
+    <div class="num" id="hero-total" style="font-size:44px;color:#F1F5F9;line-height:1;margin-bottom:4px"></div>
+    <div style="font-size:10px;color:#475569;margin-bottom:14px">Incluye depto + inversiones · excluye AFP y fondos de terceros</div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px">
+        <span class="muted">META LIBERTAD FINANCIERA $900,000,000</span>
+        <span id="hero-pct" style="color:#38BDF8"></span>
+      </div>
+      <div class="bar" style="height:8px"><div id="hero-bar" class="fill" style="background:linear-gradient(90deg,#1D4ED8,#38BDF8,#34D399)"></div></div>
+      <div style="font-size:10px;margin-top:5px">
+        <span class="muted">Faltan </span><span id="hero-remaining" style="color:#F1F5F9"></span><span class="muted"> para libertad financiera 🎯</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="inner" style="padding:12px 20px 0">
+  <div class="tabs-wrap">
+    <button class="tab-btn active" onclick="switchTab(0)">PORTFOLIO</button>
+    <button class="tab-btn" onclick="switchTab(1)">METAS</button>
+    <button class="tab-btn" onclick="switchTab(2)">ASIGNACIÓN</button>
+    <button class="tab-btn" onclick="switchTab(3)">PROYECCIONES</button>
+    <button class="tab-btn" onclick="switchTab(4)">DEPTO</button>
+    <button class="tab-btn" onclick="switchTab(5)">ACTUALIZAR</button>
+  </div>
+
+  <!-- TAB 0: PORTFOLIO -->
+  <div id="tab-0" class="tab-content active">
+    <div class="grid2" id="stat-cards"></div>
+    <div class="section-label">BIENES RAÍCES</div>
+    <div id="real-estate-section"></div>
+    <div class="section-label" style="margin-top:16px">TU PATRIMONIO INVERTIBLE</div>
+    <div id="portfolio-funds"></div>
+    <div class="section-label" style="margin-top:16px">EXCLUIDOS DEL PATRIMONIO</div>
+    <div id="excluded-funds"></div>
+  </div>
+
+  <!-- TAB 1: METAS -->
+  <div id="tab-1" class="tab-content">
+    <div class="section-label">OBJETIVOS ACTIVOS</div>
+    <div id="goals-list"></div>
+    <div id="patrimony-goal" class="card" style="padding:14px 16px;border-color:#1E3A2A;background:linear-gradient(135deg,#0A2018 0%,#0E1420 100%)"></div>
+  </div>
+
+  <!-- TAB 2: ASIGNACIÓN -->
+  <div id="tab-2" class="tab-content">
+    <!-- Fixed exits -->
+    <div class="card" style="padding:12px 14px;margin-bottom:12px;border-color:#2A1A1A;background:#120A0A">
+      <div style="font-size:10px;color:#475569;margin-bottom:6px">⚠️ SALIDAS FIJAS MENSUALES</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span class="muted">🔒 APV Principal</span><span>$300.000</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span class="muted">👦 Ahorros Mati</span><span>$50.000</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span class="muted">🔑 Zañartu</span><span>$50.000</span></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span class="muted">Total fijo</span><span style="color:#F87171">$400.000/mes</span></div>
+      <div style="font-size:10px;color:#475569;margin-top:5px">Descuenta esto antes de ingresar tu ahorro</div>
+    </div>
+
+    <!-- APV Fixed -->
+    <div class="card" style="padding:14px 16px;margin-bottom:12px;border-color:#1E3A5F;background:linear-gradient(135deg,#0D1F35 0%,#0E1420 100%)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:10px;color:#475569;margin-bottom:2px">🔒 APV FIJO — PRINCIPAL ARRIESGADO</div>
+          <div class="num" style="font-size:28px;color:#38BDF8">$300.000<span style="font-size:12px;color:#475569;font-family:'DM Mono',monospace">/mes</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:#475569;margin-bottom:2px">BONO ESTADO 15%</div>
+          <div class="num" style="font-size:22px;color:#34D399">+$45.000</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-bottom:4px">
+        <span>APV acumulado 2025</span><span>$1.200.000 / $22.000.000</span>
+      </div>
+      <div class="bar"><div class="fill" style="width:5.5%;background:linear-gradient(90deg,#38BDF8,#6366F1)"></div></div>
+      <div style="font-size:10px;color:#475569;margin-top:3px">5.5% del máximo · bono máximo $3.300.000/año</div>
+    </div>
+
+    <!-- Savings input -->
+    <div class="card" style="padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:10px;color:#475569;margin-bottom:8px">💰 AHORRO DEL MES (ya descontadas salidas fijas)</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span style="color:#475569;font-size:18px">$</span>
+        <input type="text" id="savings-input" value="800.000" oninput="handleSavings(this.value)"
+          style="background:transparent;border:none;border-bottom:2px solid #38BDF8;color:#F1F5F9;font-size:34px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em;width:100%;outline:none;padding-bottom:2px" />
+      </div>
+    </div>
+
+    <!-- Main buckets -->
+    <div class="section-label">DISTRIBUCIÓN PRINCIPAL</div>
+    <div id="buckets-list"></div>
+
+    <!-- BTG Sub-allocation -->
+    <div class="section-label" style="margin-top:16px">📊 DENTRO DE BTG — ¿CÓMO DISTRIBUIR?</div>
+    <div style="font-size:10px;color:#475569;margin-bottom:10px">Ingresa el monto disponible para BTG directamente</div>
+    <div class="card" style="padding:12px 14px;margin-bottom:10px;border-color:#1A2A1A">
+      <div style="font-size:10px;color:#475569;margin-bottom:6px">💵 MONTO A INVERTIR EN BTG</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span style="color:#475569;font-size:16px">$</span>
+        <input type="text" id="btg-direct-input" placeholder="0" oninput="handleBtgDirect(this.value)"
+          style="background:transparent;border:none;border-bottom:2px solid #34D399;color:#F1F5F9;font-size:26px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em;width:100%;outline:none;padding-bottom:2px" />
+      </div>
+      <div style="font-size:10px;color:#475569;margin-top:5px">Puedes ingresar un monto independiente del ahorro mensual</div>
+    </div>
+    <div id="btg-sub-list"></div>
+
+    <!-- Extras -->
+    <div class="section-label" style="margin-top:16px">✨ EXTRAS (solo si sobra dinero)</div>
+    <div style="font-size:10px;color:#475569;margin-bottom:10px">No afectan tu patrimonio invertible</div>
+    <div id="extras-list"></div>
+
+    <!-- Windfall allocator -->
+    <div class="section-label" style="margin-top:16px">🎁 DINERO EXTRA (bono, devolución, regalo)</div>
+    <div style="font-size:10px;color:#475569;margin-bottom:10px">Ingresa cualquier monto extra · se divide automáticamente</div>
+    <div class="card" style="padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
+        <span style="color:#475569;font-size:18px">$</span>
+        <input type="text" id="windfall-input" placeholder="0" oninput="handleWindfall(this.value)"
+          style="background:transparent;border:none;border-bottom:2px solid #A78BFA;color:#F1F5F9;font-size:28px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em;width:100%;outline:none;padding-bottom:2px" />
+      </div>
+      <div id="windfall-results"></div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card" style="padding:14px 16px;margin-top:4px;border-color:#1A3A2A;background:linear-gradient(135deg,#0A2018 0%,#0E1420 100%)">
+      <div style="font-size:10px;color:#475569;margin-bottom:10px">✅ RESUMEN DEL MES</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px"><span class="muted">APV Principal (fijo)</span><span style="color:#38BDF8">$300.000</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px"><span class="muted">Bono estado (15%)</span><span style="color:#34D399">+$45.000</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px"><span class="muted">Ahorro distribuido</span><span id="summary-savings" style="color:#CBD5E1"></span></div>
+      <div id="summary-extras-row" style="display:none;justify-content:space-between;margin-bottom:7px;font-size:12px"><span class="muted">Extras</span><span id="summary-extras-val" style="color:#86EFAC"></span></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px">TOTAL INVERTIDO</span>
+        <div class="num" id="summary-total" style="font-size:28px;color:#34D399"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: PROYECCIONES -->
+  <div id="tab-3" class="tab-content">
+    <div class="section-label">CAMINO A LIBERTAD FINANCIERA ($900,000,000)</div>
+    <div id="projections-list"></div>
+    <div class="card" style="padding:12px 14px">
+      <div style="font-size:10px;color:#475569;margin-bottom:6px">SUPUESTOS</div>
+      <div id="proj-supuestos" style="font-size:11px;color:#64748B;line-height:1.7"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: DEPTO -->
+  <div id="tab-4" class="tab-content">
+    <div class="section-label">🏠 CALCULADORA DEPARTAMENTO</div>
+    <div style="font-size:10px;color:#475569;margin-bottom:16px">Valor real del depto considerando UF + plusvalía</div>
+
+    <div class="card" style="padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:10px;color:#475569;margin-bottom:10px">DATOS DEL DEPTO</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px">UF de compra</span>
+        <div style="display:flex;align-items:baseline;gap:4px;min-width:130px">
+          <input type="text" id="depto-uf" value="4.100" oninput="calcDepto()"
+            style="background:transparent;border:none;border-bottom:1px solid #38BDF8;color:#F1F5F9;font-family:'DM Mono',monospace;font-size:16px;width:100%;outline:none;padding-bottom:2px;text-align:right" />
+          <span style="color:#475569;font-size:12px">UF</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px">UF hoy</span>
+        <div style="display:flex;align-items:baseline;gap:4px;min-width:130px">
+          <input type="text" id="depto-uf-hoy" value="40.186" oninput="calcDepto()"
+            style="background:transparent;border:none;border-bottom:1px solid #38BDF8;color:#F1F5F9;font-family:'DM Mono',monospace;font-size:16px;width:100%;outline:none;padding-bottom:2px;text-align:right" />
+          <span style="color:#475569;font-size:12px">$/UF</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:13px">Plusvalía anual</div>
+          <div style="font-size:10px;color:#475569">Apreciación real sobre inflación</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:4px;min-width:130px">
+          <input type="text" id="depto-plusvalia" value="3" oninput="calcDepto()"
+            style="background:transparent;border:none;border-bottom:1px solid #A78BFA;color:#F1F5F9;font-family:'DM Mono',monospace;font-size:16px;width:100%;outline:none;padding-bottom:2px;text-align:right" />
+          <span style="color:#475569;font-size:12px">%/año</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px">Años desde compra</span>
+        <div style="display:flex;align-items:baseline;gap:4px;min-width:130px">
+          <input type="text" id="depto-years" value="0.3" oninput="calcDepto()"
+            style="background:transparent;border:none;border-bottom:1px solid #A78BFA;color:#F1F5F9;font-family:'DM Mono',monospace;font-size:16px;width:100%;outline:none;padding-bottom:2px;text-align:right" />
+          <span style="color:#475569;font-size:12px">años</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card" style="padding:14px 16px;margin-bottom:12px;border-color:#1E3A5F;background:linear-gradient(135deg,#0D1F35 0%,#0E1420 100%)">
+      <div style="font-size:10px;color:#475569;margin-bottom:10px">📐 FÓRMULA</div>
+      <div style="font-size:11px;color:#94A3B8;line-height:1.8">
+        Valor UF = UF compra × UF hoy<br>
+        Plusvalía = Valor UF × (1 + %)^años<br>
+        <span style="color:#38BDF8">Valor final = ambos combinados</span>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;border-color:#1E3A2A;background:linear-gradient(135deg,#0A2018 0%,#0E1420 100%)">
+      <div style="font-size:10px;color:#475569;margin-bottom:12px">VALOR ACTUAL DEL DEPTO</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
+        <span class="muted">Solo ajuste UF (inflación)</span>
+        <span id="depto-uf-value" style="color:#38BDF8"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
+        <span class="muted">Con plusvalía incluida</span>
+        <span id="depto-total-value" style="color:#34D399"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
+        <span class="muted">Ganancia por plusvalía</span>
+        <span id="depto-gain" style="color:#A78BFA"></span>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:10px;color:#475569;margin-bottom:4px">PROYECCIÓN A FUTURO</div>
+      <div id="depto-projection" style="font-size:11px;color:#64748B;line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ACTUALIZAR -->
+  <div id="tab-5" class="tab-content">
+    <div class="section-label">ACTUALIZAR SALDOS</div>
+    <div style="font-size:10px;color:#475569;margin-bottom:16px">Edita el saldo de cada fondo · el patrimonio se recalcula automáticamente</div>
+
+    <!-- Apartment update -->
+    <div class="section-label">BIENES RAÍCES</div>
+    <div class="card fund-card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px">Departamento</div>
+            <div style="font-size:10px;color:#475569">4.100 UF · comprado ene 2025</div>
+          </div>
+        </div>
+        <div style="text-align:right;min-width:130px">
+          <div style="font-size:10px;color:#475569;margin-bottom:2px">$</div>
+          <input class="edit-input" id="apt-input" value="164.765.880" oninput="updateApartment(this.value)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:16px">TU PATRIMONIO INVERTIBLE</div>
+    <div id="update-patrimony"></div>
+    <div class="section-label" style="margin-top:16px">EXCLUIDOS DEL PATRIMONIO</div>
+    <div id="update-excluded"></div>
+
+    <div class="card" style="padding:14px 16px;margin-top:8px;border-color:#1E3A2A;background:linear-gradient(135deg,#0A2018 0%,#0E1420 100%)">
+      <div style="font-size:10px;color:#475569;margin-bottom:8px">PATRIMONIO TOTAL ACTUALIZADO</div>
+      <div class="num" id="update-total" style="font-size:34px;color:#34D399"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-top:8px;margin-bottom:4px">
+        <span>Progreso hacia libertad financiera</span>
+        <span id="update-pct" style="color:#38BDF8"></span>
+      </div>
+      <div class="bar"><div id="update-bar" class="fill" style="background:linear-gradient(90deg,#1D4ED8,#38BDF8,#34D399)"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const FREEDOM_GOAL = 900_000_000;
+const INVEST_MILESTONE = 100_000_000;
+const FIXED_APV = 300_000;
+const GOVT_BONUS = 45_000;
+
+let apartmentValue = 164_765_880;
+
+const funds = [
+  { key:"apv_p",     label:"APV Principal",     sub:"Gestión Activa Arriesgado", amount:17_557_129, color:"#38BDF8", inP:true  },
+  { key:"btg",       label:"BTG Pactual",        sub:"3 fondos — ver sub-asignación", amount:9_519_214, color:"#34D399", inP:true  },
+  { key:"apv_fin",   label:"APV Fintual",        sub:"Risky Norris",             amount:6_745_889,  color:"#818CF8", inP:true  },
+  { key:"bchile",    label:"Banco de Chile",     sub:"En migración → BTG",       amount:6_104_735,  color:"#FB923C", inP:true  },
+  { key:"santander", label:"Santander",          sub:"En migración → BTG",       amount:4_526_681,  color:"#F87171", inP:true  },
+  { key:"emerg",     label:"Reserva Emergencia", sub:"Fintual Streep A",         amount:3_009_364,  color:"#F472B6", inP:true  },
+  { key:"subaru",    label:"Subaru Bucket",      sub:"Fintual Goal",             amount:1_589_717,  color:"#A78BFA", inP:true  },
+  { key:"techito",   label:"Techito",            sub:"Pausado",                  amount:1_240_431,  color:"#FBBF24", inP:true  },
+  { key:"scotia",    label:"Scotiabank",         sub:"",                         amount:476_743,    color:"#6EE7B7", inP:true  },
+  { key:"renta",     label:"Cta Renta",          sub:"",                         amount:312_319,    color:"#93C5FD", inP:true  },
+  { key:"larrain",   label:"Larraín Vial",       sub:"",                         amount:26_317,     color:"#D1D5DB", inP:true  },
+  { key:"zaniartu",  label:"Zañartu",            sub:"Arriendo · $50k/mes",      amount:356_087,    color:"#FCD34D", inP:false },
+  { key:"mati",      label:"Ahorros Mati",       sub:"Sobrino · $50k/mes",       amount:1_592_148,  color:"#FDA4AF", inP:false },
+  { key:"casa",      label:"Casa (Familia)",     sub:"Gastos hogar/vacaciones",  amount:204_693,    color:"#86EFAC", inP:false },
+  { key:"tupungato", label:"Tupungato",          sub:"Inversión con hermano",    amount:1_716_633,  color:"#67E8F9", inP:false },
+];
+
+const BTG_FUNDS = [
+  { key:"btg_sp500",   label:"Singular ETF S&P 500",        pct:0.60, color:"#34D399", note:"Core growth · pasivo · bajo costo" },
+  { key:"btg_emerg",   label:"Banchile Marketplus Emergente",pct:0.25, color:"#F472B6", note:"Diversificación · mercados emergentes" },
+  { key:"btg_quest",   label:"Quest Estrategia Activa",     pct:0.15, color:"#FBBF24", note:"Temporal · sin nuevas contribuciones" },
+];
+
+const GOALS = [
+  { key:"emerg",    icon:"🛡️", label:"Reserva Emergencia", target:12_000_000,  color:"#F472B6", note:"Meta inicial · revisitar en $75M" },
+  { key:"subaru",   icon:"🚗", label:"Subaru Crosstrek",   target:17_000_000,  color:"#A78BFA", note:"Meta $21M − $4M venta Gol" },
+  { key:"zaniartu", icon:"🔑", label:"Zañartu (Arriendo)", target:550_000,     color:"#FCD34D", note:"Buffer mensual del arrendatario" },
+  { key:"techito",  icon:"🏠", label:"Techito (Depto)",    target:null,        color:"#94A3B8", note:"Pausado — retomar más adelante" },
+];
+
+const BUCKETS = [
+  { key:"emerg",   label:"Reserva Emergencia", sub:"Fintual Streep A", pct:0.30, color:"#F472B6", icon:"🛡️" },
+  { key:"btg",     label:"BTG Pactual",         sub:"Ver sub-asignación", pct:0.35, color:"#34D399", icon:"📈" },
+  { key:"fintual", label:"Risky Norris",         sub:"Fintual APV",      pct:0.20, color:"#818CF8", icon:"🌎" },
+  { key:"subaru",  label:"Subaru Bucket",        sub:"Fintual Goal",     pct:0.15, color:"#A78BFA", icon:"🚗" },
+];
+
+const EXTRAS = [
+  { key:"casa",      label:"Casa (Familia)", icon:"🏡", color:"#86EFAC" },
+  { key:"tupungato", label:"Tupungato",      icon:"🤝", color:"#67E8F9" },
+];
+
+const PROJECTIONS = [
+  { label:"Conservador", rate:"3–4%",  y5:240_000_000, y10:280_000_000, y20:390_000_000 },
+  { label:"Moderado",    rate:"6–7%",  y5:270_000_000, y10:370_000_000, y20:680_000_000 },
+  { label:"Agresivo ★",  rate:"8–10%", y5:290_000_000, y10:430_000_000, y20:950_000_000 },
+];
+
+let pcts = { emerg:0.30, btg:0.35, fintual:0.20, subaru:0.15 };
+let savingsVal = 800_000;
+let extrasVal = { casa:0, tupungato:0 };
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const clp = (n) => "$" + Math.round(n).toLocaleString("es-CL");
+const parseInput = (v) => parseInt(v.replace(/\./g,"").replace(/,/g,"")) || 0;
+
+function investableTotal() {
+  return funds.filter(f => f.inP).reduce((a,f) => a + f.amount, 0);
+}
+
+function totalPatrimony() {
+  return investableTotal() + apartmentValue;
+}
+
+function updateHero() {
+  const t = totalPatrimony();
+  const pct = Math.min((t / FREEDOM_GOAL) * 100, 100);
+  document.getElementById("hero-total").textContent = clp(t);
+  document.getElementById("hero-pct").textContent = pct.toFixed(1) + "%";
+  document.getElementById("hero-bar").style.width = pct + "%";
+  document.getElementById("hero-remaining").textContent = clp(FREEDOM_GOAL - t);
+}
+
+function switchTab(i) {
+  document.querySelectorAll(".tab-content").forEach((el,idx) => el.classList.toggle("active", idx === i));
+  document.querySelectorAll(".tab-btn").forEach((el,idx) => el.classList.toggle("active", idx === i));
+  if (i===1) renderGoals();
+  if (i===2) renderAllocation();
+  if (i===3) renderProjections();
+  if (i===4) calcDepto();
+  if (i===5) renderUpdate();
+}
+
+// ── TAB 0: PORTFOLIO ──────────────────────────────────────────────────────────
+function renderPortfolio() {
+  const inv = investableTotal();
+  const total = totalPatrimony();
+  const aptPct = (apartmentValue / total * 100).toFixed(1);
+  const invPct = (inv / total * 100).toFixed(1);
+
+  document.getElementById("stat-cards").innerHTML = [
+    { label:"Patrimonio total",    value: clp(total),          sub:"Depto + inversiones",          color:"#38BDF8" },
+    { label:"Depto (75% patrimonio)", value: clp(apartmentValue), sub:"4.100 UF · plusvalía futura", color:"#F59E0B" },
+    { label:"Inversiones líquidas", value: clp(inv),           sub:`${invPct}% del patrimonio`,    color:"#34D399" },
+    { label:"Acción pendiente",    value:"Migrar fondos",       sub:"BancoChile + Santander → BTG", color:"#FB923C" },
+  ].map(c => `<div class="card" style="padding:12px 14px;background:#0A0E1A">
+    <div style="font-size:10px;color:#475569;margin-bottom:4px">${c.label}</div>
+    <div class="num" style="font-size:17px;color:${c.color};line-height:1">${c.value}</div>
+    <div style="font-size:10px;color:#475569;margin-top:3px">${c.sub}</div>
+  </div>`).join("");
+
+  // Real estate
+  document.getElementById("real-estate-section").innerHTML = `
+    <div class="card fund-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px">🏠 Departamento (arriendo)</div>
+            <div style="font-size:10px;color:#475569">4.100 UF · comprado ene 2025 · genera $550k/mes</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="num" style="font-size:17px;color:#F59E0B">${clp(apartmentValue)}</div>
+          <div style="font-size:10px;color:#475569">${aptPct}% del total</div>
+        </div>
+      </div>
+      <div class="bar"><div class="fill" style="width:${aptPct}%;background:#F59E0B;opacity:0.65"></div></div>
+    </div>`;
+
+  document.getElementById("portfolio-funds").innerHTML = funds.filter(f => f.inP).map(f => {
+    const pct = (f.amount / total * 100).toFixed(1);
+    return `<div class="card fund-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${f.color};flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px">${f.label}</div>
+            ${f.sub ? `<div style="font-size:10px;color:#475569">${f.sub}</div>` : ""}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="num" style="font-size:17px;color:${f.color}">${clp(f.amount)}</div>
+          <div style="font-size:10px;color:#475569">${pct}%</div>
+        </div>
+      </div>
+      <div class="bar"><div class="fill" style="width:${pct}%;background:${f.color};opacity:0.65"></div></div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("excluded-funds").innerHTML = funds.filter(f => !f.inP).map(f => `
+    <div class="card fund-card" style="opacity:0.7">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${f.color};flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px">${f.label}</div>
+            ${f.sub ? `<div style="font-size:10px;color:#475569">${f.sub}</div>` : ""}
+          </div>
+        </div>
+        <div class="num" style="font-size:17px;color:${f.color}">${clp(f.amount)}</div>
+      </div>
+    </div>`).join("");
+}
+
+// ── TAB 1: GOALS ──────────────────────────────────────────────────────────────
+function renderGoals() {
+  const getFund = (key) => funds.find(f => f.key === key)?.amount || 0;
+  document.getElementById("goals-list").innerHTML = GOALS.map(g => {
+    const current = getFund(g.key);
+    const paused = g.target === null;
+    const pct = paused ? 0 : Math.min((current / g.target) * 100, 100);
+    if (paused) return `<div class="card" style="padding:14px 16px;margin-bottom:10px;opacity:0.5">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px">${g.icon} ${g.label}</div><div style="font-size:10px;color:#475569;margin-top:2px">${g.note}</div></div>
+        <div style="font-size:10px;background:#1A2235;color:#64748B;padding:3px 8px;border-radius:99px">PAUSADO</div>
+      </div></div>`;
+    return `<div class="card" style="padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div><div style="font-size:14px">${g.icon} ${g.label}</div><div style="font-size:10px;color:#475569;margin-top:2px">${g.note}</div></div>
+        <div style="text-align:right">
+          <div class="num" style="font-size:24px;color:${g.color}">${pct.toFixed(0)}%</div>
+          <div style="font-size:10px;color:#475569">completado</div>
+        </div>
+      </div>
+      <div class="bar" style="margin-bottom:6px"><div class="fill" style="width:${pct}%;background:${g.color};opacity:0.75"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px">
+        <span style="color:${g.color}">${clp(current)}</span>
+        <span class="muted">meta ${clp(g.target)}</span>
+      </div>
+      <div style="font-size:10px;color:#475569;margin-top:4px">Faltan <span style="color:#F1F5F9">${clp(g.target - current)}</span></div>
+    </div>`;
+  }).join("");
+
+  const t = totalPatrimony();
+  const pct = Math.min((t / FREEDOM_GOAL) * 100, 100);
+  const inv = investableTotal();
+  const invPct = Math.min((inv / INVEST_MILESTONE) * 100, 100);
+
+  document.getElementById("patrimony-goal").innerHTML = `
+    <div style="font-size:10px;color:#475569;margin-bottom:10px">HITOS PATRIMONIALES</div>
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><div style="font-size:13px">🎯 Primer hito inversiones</div><div style="font-size:10px;color:#475569">$100M en fondos líquidos</div></div>
+        <div class="num" style="font-size:20px;color:#38BDF8">${invPct.toFixed(0)}%</div>
+      </div>
+      <div class="bar" style="margin-bottom:4px"><div class="fill" style="width:${invPct}%;background:#38BDF8;opacity:0.7"></div></div>
+      <div style="font-size:10px;color:#475569">${clp(inv)} / ${clp(INVEST_MILESTONE)}</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><div style="font-size:13px">🏆 Libertad financiera</div><div style="font-size:10px;color:#475569">$900M total · $3M/mes pasivo</div></div>
+        <div class="num" style="font-size:20px;color:#34D399">${pct.toFixed(0)}%</div>
+      </div>
+      <div class="bar" style="margin-bottom:4px"><div class="fill" style="width:${pct}%;background:linear-gradient(90deg,#1D4ED8,#38BDF8,#34D399)"></div></div>
+      <div style="font-size:10px;color:#475569">${clp(t)} / ${clp(FREEDOM_GOAL)}</div>
+    </div>`;
+}
+
+// ── TAB 2: ALLOCATION ─────────────────────────────────────────────────────────
+let btgDirectVal = 0;
+
+function handleBtgDirect(val) {
+  btgDirectVal = parseInput(val) || 0;
+  renderBuckets();
+}
+
+function renderBuckets() {
+  document.getElementById("buckets-list").innerHTML = BUCKETS.map(b => {
+    const amount = Math.round(savingsVal * pcts[b.key]);
+    return `<div class="card" style="padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div><div style="font-size:13px">${b.icon} ${b.label}</div><div style="font-size:10px;color:#475569">${b.sub}</div></div>
+        <div style="text-align:right">
+          <div class="num" style="font-size:20px;color:${b.color}">${clp(amount)}</div>
+          <div style="font-size:10px;color:#475569">${(pcts[b.key]*100).toFixed(0)}%</div>
+        </div>
+      </div>
+      <div class="bar" style="margin-bottom:8px"><div class="fill" style="width:${pcts[b.key]*100}%;background:${b.color};opacity:0.7"></div></div>
+      <div style="display:flex;gap:6px">
+        <button class="adj" style="color:#F87171" onclick="adjustPct('${b.key}',-0.05)">-5%</button>
+        <button class="adj" style="color:#F87171" onclick="adjustPct('${b.key}',-0.02)">-2%</button>
+        <button class="adj" style="color:#34D399" onclick="adjustPct('${b.key}',+0.02)">+2%</button>
+        <button class="adj" style="color:#34D399" onclick="adjustPct('${b.key}',+0.05)">+5%</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  // BTG sub-allocation — smart logic
+  const btgFromSavings = Math.round(savingsVal * pcts.btg);
+  const btgAmount = btgDirectVal > 0 ? btgDirectVal : btgFromSavings;
+  const QUEST_MIN = 50_000;
+  const BTG_THRESHOLD = 333_000;
+  const questActive = btgAmount >= BTG_THRESHOLD;
+
+  // Dynamic splits based on available amount
+  const btgSplit = questActive
+    ? [
+        { label:"Singular ETF S&P 500",         pct:0.60, color:"#34D399", note:"Core growth · pasivo · bajo costo" },
+        { label:"Banchile Marketplus Emergente",  pct:0.25, color:"#F472B6", note:"Diversificación · mercados emergentes" },
+        { label:"Quest Estrategia Activa",        pct:0.15, color:"#FBBF24", note:"Activo · mínimo $50.000 ✅" },
+      ]
+    : [
+        { label:"Singular ETF S&P 500",          pct:0.70, color:"#34D399", note:"Core growth · pasivo · bajo costo" },
+        { label:"Banchile Marketplus Emergente",  pct:0.30, color:"#F472B6", note:"Diversificación · mercados emergentes" },
+        { label:"Quest Estrategia Activa",        pct:0,    color:"#475569", note:"Sin contribución — BTG < $333.000" },
+      ];
+
+  const sourceLabel = btgDirectVal > 0
+    ? `<span style="color:#6EE7B7">✏️ Monto ingresado manualmente: ${clp(btgAmount)}</span>`
+    : `<span style="color:#475569">Calculado del ahorro mensual: ${clp(btgAmount)}</span>`;
+
+  const modeLabel = questActive
+    ? `${sourceLabel} · <span style="color:#34D399">✅ Quest incluido</span>`
+    : `${sourceLabel} · <span style="color:#FBBF24">⚡ Quest pausado (BTG < $333.000)</span>`;
+
+  document.getElementById("btg-sub-list").innerHTML =
+    `<div style="font-size:10px;margin-bottom:10px;padding:8px 12px;background:#0A0E1A;border-radius:8px;border:1px solid #1A2235">${modeLabel}</div>` +
+    btgSplit.filter(b => b.pct > 0).map(b => {
+      const amount = Math.round(btgAmount * b.pct);
+      return `<div class="card" style="padding:11px 14px;margin-bottom:8px;border-color:#1A2A1A">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div>
+            <div style="font-size:12px;color:${b.color}">${b.label}</div>
+            <div style="font-size:10px;color:#475569">${b.note}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="num" style="font-size:18px;color:${b.color}">${clp(amount)}</div>
+            <div style="font-size:10px;color:#475569">${(b.pct*100).toFixed(0)}% del BTG</div>
+          </div>
+        </div>
+        <div class="bar"><div class="fill" style="width:${b.pct*100}%;background:${b.color};opacity:0.6"></div></div>
+      </div>`;
+    }).join("") +
+    (!questActive ? `<div class="card" style="padding:11px 14px;margin-bottom:8px;opacity:0.4;border-color:#1A2A1A">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:12px;color:#475569">Quest Estrategia Activa</div>
+          <div style="font-size:10px;color:#475569">Necesitas BTG ≥ $333.000 para activar</div>
+        </div>
+        <div class="num" style="font-size:18px;color:#475569">$0</div>
+      </div>
+    </div>` : "");
+}
+
+const WINDFALL_SPLITS = [
+  { label:"🛡️ Reserva Emergencia", sub:"Fintual Streep A",  pct:0.50, color:"#F472B6" },
+  { label:"🚗 Subaru Bucket",       sub:"Fintual Goal",      pct:0.25, color:"#A78BFA" },
+  { label:"📈 BTG S&P 500",         sub:"Singular ETF",      pct:0.25, color:"#34D399" },
+];
+
+let windfallVal = 0;
+
+function handleWindfall(val) {
+  windfallVal = parseInput(val) || 0;
+  const el = document.getElementById("windfall-results");
+  if (windfallVal === 0) { el.innerHTML = ""; return; }
+  el.innerHTML = WINDFALL_SPLITS.map(s => {
+    const amount = Math.round(windfallVal * s.pct);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div style="font-size:13px">${s.label}</div>
+        <div style="font-size:10px;color:#475569">${s.sub}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="num" style="font-size:18px;color:${s.color}">${clp(amount)}</div>
+        <div style="font-size:10px;color:#475569">${(s.pct*100).toFixed(0)}%</div>
+      </div>
+    </div>
+    <div class="bar" style="margin-bottom:10px"><div class="fill" style="width:${s.pct*100}%;background:${s.color};opacity:0.65"></div></div>`;
+  }).join("") +
+  `<div class="divider"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+    <span style="font-size:12px;color:#475569">TOTAL A INVERTIR</span>
+    <div class="num" style="font-size:22px;color:#A78BFA">${clp(windfallVal)}</div>
+  </div>`;
+}
+
+function renderExtras() {
+  document.getElementById("extras-list").innerHTML = EXTRAS.map(e => `
+    <div class="card" style="padding:12px 14px;margin-bottom:8px;border-color:#1A2A1A">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px">${e.icon} ${e.label}</div>
+        <div class="num" style="font-size:18px;color:${e.color}" id="extra-display-${e.key}">${clp(extrasVal[e.key])}</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span style="color:#475569;font-size:13px">$</span>
+        <input type="text" placeholder="0" oninput="handleExtra('${e.key}',this.value)"
+          style="background:transparent;border:none;border-bottom:1px solid ${e.color};color:#F1F5F9;font-size:18px;font-family:'Bebas Neue',sans-serif;width:100%;outline:none;padding-bottom:2px" />
+      </div>
+    </div>`).join("");
+}
+
+function renderSummary() {
+  const totalExtras = extrasVal.casa + extrasVal.tupungato;
+  const total = FIXED_APV + savingsVal + GOVT_BONUS + totalExtras;
+  document.getElementById("summary-savings").textContent = clp(savingsVal);
+  document.getElementById("summary-total").textContent = clp(total);
+  const row = document.getElementById("summary-extras-row");
+  if (totalExtras > 0) { row.style.display="flex"; document.getElementById("summary-extras-val").textContent = clp(totalExtras); }
+  else row.style.display = "none";
+}
+
+function renderAllocation() { renderBuckets(); renderExtras(); renderSummary(); }
+
+function adjustPct(key, delta) {
+  pcts[key] = Math.max(0, Math.min(1, pcts[key] + delta));
+  const sum = Object.values(pcts).reduce((a,b) => a+b, 0);
+  if (sum > 0) Object.keys(pcts).forEach(k => pcts[k] /= sum);
+  renderBuckets(); renderSummary();
+}
+
+function handleSavings(val) { savingsVal = parseInput(val) || 0; renderBuckets(); renderSummary(); }
+
+function handleExtra(key, val) {
+  extrasVal[key] = parseInput(val) || 0;
+  const d = document.getElementById("extra-display-" + key);
+  if (d) d.textContent = clp(extrasVal[key]);
+  renderSummary();
+}
+
+// ── TAB 3: PROJECTIONS ────────────────────────────────────────────────────────
+function renderProjections() {
+  const t = totalPatrimony();
+  document.getElementById("proj-supuestos").textContent =
+    `Base: ${clp(t)} (incluye depto) · APV fijo: $300.000/mes · ~$550.000/mes adicional · Meta: $900M = $3M/mes pasivo (4% rule) · Valores en CLP de hoy`;
+
+  document.getElementById("projections-list").innerHTML = PROJECTIONS.map((p, i) => {
+    const star = i === 2;
+    const cells = [["5 años", p.y5], ["10 años", p.y10], ["20 años", p.y20]].map(([label, val]) => {
+      const hit = val >= FREEDOM_GOAL;
+      return `<div style="background:#080C14;border-radius:8px;padding:10px 8px;text-align:center;border:1px solid ${hit ? "#2A5A3A" : "#1A2235"}">
+        <div style="font-size:10px;color:#475569;margin-bottom:4px">${label}</div>
+        <div class="num" style="font-size:16px;color:${hit ? "#34D399" : "#94A3B8"}">$${(val/1_000_000).toFixed(0)}M</div>
+        ${hit ? '<div style="font-size:9px;color:#34D399;margin-top:2px">✓ LIBRE</div>' : ""}
+      </div>`;
+    }).join("");
+    const y20pct = Math.min((p.y20 / FREEDOM_GOAL) * 100, 100);
+    return `<div class="card" style="padding:16px;margin-bottom:10px;border-color:${star?"#1A3A2A":"#1A2235"};background:${star?"linear-gradient(135deg,#0A2018 0%,#0E1420 100%)":"#0E1420"}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;color:${star?"#34D399":"#CBD5E1"}">${p.label}</div>
+          <div style="font-size:10px;color:#475569">Retorno anual ${p.rate}</div>
+        </div>
+        ${star ? '<div style="font-size:10px;background:#1A3A2A;color:#34D399;padding:3px 10px;border-radius:99px;border:1px solid #2A5A3A">RECOMENDADO</div>' : ""}
+      </div>
+      <div class="grid3">${cells}</div>
+      <div class="bar"><div class="fill" style="width:${y20pct}%;background:${star?"#34D399":"#475569"};opacity:0.5"></div></div>
+      <div style="font-size:10px;color:#475569;margin-top:3px">A 20 años: ${y20pct.toFixed(0)}% de libertad financiera</div>
+    </div>`;
+  }).join("");
+}
+
+// ── TAB 4: DEPTO ──────────────────────────────────────────────────────────────
+function calcDepto() {
+  const ufCompra = parseFloat(document.getElementById("depto-uf").value.replace(/\./g,"").replace(/,/g,".")) || 4100;
+  const ufHoy = parseFloat(document.getElementById("depto-uf-hoy").value.replace(/\./g,"").replace(/,/g,".")) || 40186;
+  const plusvalia = parseFloat(document.getElementById("depto-plusvalia").value.replace(/,/g,".")) || 3;
+  const years = parseFloat(document.getElementById("depto-years").value.replace(/,/g,".")) || 0;
+
+  const ufValue = ufCompra * ufHoy;
+  const totalValue = ufValue * Math.pow(1 + plusvalia/100, years);
+  const gain = totalValue - ufValue;
+
+  document.getElementById("depto-uf-value").textContent = clp(ufValue);
+  document.getElementById("depto-total-value").textContent = clp(totalValue);
+  document.getElementById("depto-gain").textContent = "+" + clp(gain);
+
+  const proj = [1, 5, 10, 20].map(y => {
+    const v = ufValue * Math.pow(1 + plusvalia/100, y);
+    return `<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+      <span class="muted">En ${y} año${y>1?"s":""}</span>
+      <span style="color:#A78BFA">${clp(v)}</span>
+    </div>`;
+  }).join("");
+  document.getElementById("depto-projection").innerHTML = proj;
+}
+
+// ── TAB 5: UPDATE ─────────────────────────────────────────────────────────────
+function renderUpdate() {
+  const renderInput = (f) => `<div class="card fund-card" style="margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${f.color};flex-shrink:0"></div>
+        <div>
+          <div style="font-size:13px">${f.label}</div>
+          ${f.sub ? `<div style="font-size:10px;color:#475569">${f.sub}</div>` : ""}
+        </div>
+      </div>
+      <div style="text-align:right;min-width:130px">
+        <div style="font-size:10px;color:#475569;margin-bottom:2px">$</div>
+        <input class="edit-input" value="${f.amount.toLocaleString("es-CL")}" oninput="updateFund('${f.key}',this.value)" />
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById("update-patrimony").innerHTML = funds.filter(f => f.inP).map(renderInput).join("");
+  document.getElementById("update-excluded").innerHTML = funds.filter(f => !f.inP).map(f => renderInput(f)).join("");
+  refreshUpdateTotal();
+}
+
+function updateApartment(val) {
+  apartmentValue = parseInput(val) || 164_765_880;
+  updateHero();
+  renderPortfolio();
+  refreshUpdateTotal();
+}
+
+function updateFund(key, val) {
+  const n = parseInput(val);
+  if (!isNaN(n) && n >= 0) { const f = funds.find(f => f.key === key); if (f) f.amount = n; }
+  updateHero();
+  renderPortfolio();
+  refreshUpdateTotal();
+}
+
+function refreshUpdateTotal() {
+  const t = totalPatrimony();
+  const pct = Math.min((t / FREEDOM_GOAL) * 100, 100);
+  document.getElementById("update-total").textContent = clp(t);
+  document.getElementById("update-pct").textContent = pct.toFixed(1) + "%";
+  document.getElementById("update-bar").style.width = pct + "%";
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateHero();
+renderPortfolio();
+</script>
+</body>
+</html>
