@@ -8,31 +8,32 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: #080C14; color: #CBD5E1; font-family: 'DM Mono', monospace; padding-bottom: 60px; min-height: 100vh; font-size: 16px; }
+    html { font-size: 18px; }
+    body { background: #080C14; color: #CBD5E1; font-family: 'DM Mono', monospace; padding-bottom: 60px; min-height: 100vh; width: 100vw; overflow-x: hidden; }
     .num { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.03em; }
     .muted { color: #475569; }
-    .card { background: #0E1420; border: 1px solid #1A2235; border-radius: 14px; }
-    .bar { height: 6px; background: #1A2235; border-radius: 3px; overflow: hidden; }
-    .fill { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
-    .tab-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding: 7px 11px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; color: #475569; }
+    .card { background: #0E1420; border: 1px solid #1A2235; border-radius: 16px; }
+    .bar { height: 8px; background: #1A2235; border-radius: 4px; overflow: hidden; }
+    .fill { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    .tab-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.06em; padding: 10px 16px; border-radius: 10px; transition: all 0.2s; white-space: nowrap; color: #475569; }
     .tab-btn.active { background: #1A2235; color: #38BDF8; }
-    .adj { background: #0E1420; border: 1px solid #1A2235; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-family: 'DM Mono', monospace; cursor: pointer; }
+    .adj { background: #0E1420; border: 1px solid #1A2235; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-family: 'DM Mono', monospace; cursor: pointer; }
     .adj:active { background: #1A2235; }
-    .edit-input { background: transparent; border: none; border-bottom: 1px solid #1A2235; color: #F1F5F9; font-family: 'DM Mono', monospace; font-size: 13px; width: 100%; outline: none; padding: 2px 0; text-align: right; transition: border-color 0.2s; }
+    .edit-input { background: transparent; border: none; border-bottom: 1px solid #1A2235; color: #F1F5F9; font-family: 'DM Mono', monospace; font-size: 16px; width: 100%; outline: none; padding: 4px 0; text-align: right; transition: border-color 0.2s; }
     .edit-input:focus { border-bottom-color: #38BDF8; }
     .tab-content { display: none; animation: fu 0.35s ease forwards; }
     .tab-content.active { display: block; }
     @keyframes fu { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-    .hero { background: linear-gradient(180deg,#0D1929 0%,#080C14 100%); padding: 28px 20px 18px; border-bottom: 1px solid #1A2235; }
-    .inner { max-width: 100%; margin: 0 auto; padding: 0 8px; }
-    .tabs-wrap { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; }
+    .hero { background: linear-gradient(180deg,#0D1929 0%,#080C14 100%); padding: 36px 24px 24px; border-bottom: 1px solid #1A2235; }
+    .inner { width: 100%; padding: 0 16px; }
+    .tabs-wrap { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 24px; }
     .tabs-wrap::-webkit-scrollbar { display: none; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .section-label { font-size: 10px; color: #475569; letter-spacing: 0.1em; margin-bottom: 10px; }
-    .fund-card { padding: 11px 14px; margin-bottom: 8px; }
-    .divider { height: 1px; background: #1A2235; margin: 10px 0; }
-    input[type=text], input[type=number] { -webkit-appearance: none; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .section-label { font-size: 12px; color: #475569; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .fund-card { padding: 16px 18px; margin-bottom: 10px; }
+    .divider { height: 1px; background: #1A2235; margin: 12px 0; }
+    input[type=text], input[type=number] { -webkit-appearance: none; font-size: 16px; }
   </style>
 </head>
 <body>
