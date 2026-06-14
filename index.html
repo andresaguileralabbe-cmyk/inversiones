@@ -270,18 +270,35 @@
     <!-- Apartment update -->
     <div class="section-label">BIENES RAÍCES</div>
     <div class="card fund-card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div>
           <div>
             <div style="font-size:13px">Departamento</div>
-            <div style="font-size:10px;color:#475569">4.100 UF · comprado ene 2025</div>
+            <div style="font-size:10px;color:#475569">4.100 UF · tasa 4.458% · 360 cuotas</div>
           </div>
         </div>
-        <div style="text-align:right;min-width:130px">
-          <div style="font-size:10px;color:#475569;margin-bottom:2px">$</div>
-          <input class="edit-input" id="apt-input" value="164.765.880" oninput="updateApartment(this.value)" />
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:12px;color:#475569">UF hoy</span>
+        <input class="edit-input" id="uf-hoy-input" value="40.187" oninput="updateUF(this.value)" style="max-width:140px" />
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <span style="font-size:12px;color:#475569">Saldo crédito (UF)</span>
+          <div style="font-size:10px;color:#475569">Ver en portalpersonas.bancochile.cl</div>
         </div>
+        <input class="edit-input" id="saldo-credito-input" value="3.394,948" oninput="updateSaldoCredito(this.value)" style="max-width:140px" />
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+        <span class="muted">Valor bruto</span><span id="apt-gross" style="color:#F59E0B"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+        <span class="muted">Deuda hipotecaria</span><span id="apt-debt" style="color:#F87171"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px">
+        <span>Patrimonio neto</span><span id="apt-net" style="color:#F59E0B;font-weight:500"></span>
       </div>
     </div>
 
@@ -309,7 +326,15 @@ const INVEST_MILESTONE = 100_000_000;
 const FIXED_APV = 300_000;
 const GOVT_BONUS = 45_000;
 
-let apartmentValue = 164_765_880;
+// Apartment & mortgage data
+const APT_UF_COMPRA = 4100;
+let ufHoy = 40187;
+let saldoCreditoUF = 3394.948;
+
+function apartmentGrossValue() { return APT_UF_COMPRA * ufHoy; }
+function mortgageDebt() { return saldoCreditoUF * ufHoy; }
+function apartmentNetValue() { return Math.max(0, apartmentGrossValue() - mortgageDebt()); }
+let apartmentValue = apartmentNetValue();
 
 const funds = [
   { key:"apv_p",     label:"APV Principal",     sub:"Gestión Activa Arriesgado", amount:17_557_129, color:"#38BDF8", inP:true  },
@@ -373,7 +398,7 @@ function investableTotal() {
 }
 
 function totalPatrimony() {
-  return investableTotal() + apartmentValue;
+  return investableTotal() + apartmentNetValue();
 }
 
 function updateHero() {
@@ -414,22 +439,32 @@ function renderPortfolio() {
   </div>`).join("");
 
   // Real estate
+  const gross = apartmentGrossValue();
+  const debt = mortgageDebt();
+  const net = apartmentNetValue();
   document.getElementById("real-estate-section").innerHTML = `
     <div class="card fund-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B;flex-shrink:0"></div>
           <div>
             <div style="font-size:13px">🏠 Departamento (arriendo)</div>
-            <div style="font-size:10px;color:#475569">4.100 UF · comprado ene 2025 · genera $550k/mes</div>
+            <div style="font-size:10px;color:#475569">4.100 UF · saldo deuda: ${saldoCreditoUF.toLocaleString("es-CL")} UF</div>
           </div>
         </div>
         <div style="text-align:right">
-          <div class="num" style="font-size:17px;color:#F59E0B">${clp(apartmentValue)}</div>
-          <div style="font-size:10px;color:#475569">${aptPct}% del total</div>
+          <div class="num" style="font-size:17px;color:#F59E0B">${clp(net)}</div>
+          <div style="font-size:10px;color:#475569">patrimonio neto</div>
         </div>
       </div>
-      <div class="bar"><div class="fill" style="width:${aptPct}%;background:#F59E0B;opacity:0.65"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+        <span class="muted">Valor bruto</span><span style="color:#F59E0B">${clp(gross)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+        <span class="muted">Deuda hipotecaria</span><span style="color:#F87171">−${clp(debt)}</span>
+      </div>
+      <div class="bar"><div class="fill" style="width:${((net/gross)*100).toFixed(1)}%;background:#F59E0B;opacity:0.65"></div></div>
+      <div style="font-size:10px;color:#475569;margin-top:4px">${((net/gross)*100).toFixed(1)}% del depto es tuyo · crece cada mes 📈</div>
     </div>`;
 
   document.getElementById("portfolio-funds").innerHTML = funds.filter(f => f.inP).map(f => {
@@ -760,14 +795,38 @@ function renderUpdate() {
 
   document.getElementById("update-patrimony").innerHTML = funds.filter(f => f.inP).map(renderInput).join("");
   document.getElementById("update-excluded").innerHTML = funds.filter(f => !f.inP).map(f => renderInput(f)).join("");
+  // Update apt display
+  document.getElementById("apt-gross").textContent = clp(apartmentGrossValue());
+  document.getElementById("apt-debt").textContent = "−" + clp(mortgageDebt());
+  document.getElementById("apt-net").textContent = clp(apartmentNetValue());
   refreshUpdateTotal();
 }
 
-function updateApartment(val) {
-  apartmentValue = parseInput(val) || 164_765_880;
-  updateHero();
-  renderPortfolio();
-  refreshUpdateTotal();
+function updateUF(val) {
+  ufHoy = parseFloat(val.replace(/\./g,"").replace(/,/g,".")) || 40186.80;
+  apartmentValue = apartmentNetValue();
+  updateHero(); renderPortfolio(); refreshUpdateTotal();
+  document.getElementById("apt-gross").textContent = clp(apartmentGrossValue());
+  document.getElementById("apt-debt").textContent = "−" + clp(mortgageDebt());
+  document.getElementById("apt-net").textContent = clp(apartmentNetValue());
+}
+
+function updateCuotas(val) {
+  saldoCreditoUF = parseFloat(val.replace(/\./g,"").replace(/,/g,".")) || 3394.948;
+  apartmentValue = apartmentNetValue();
+  updateHero(); renderPortfolio(); refreshUpdateTotal();
+  document.getElementById("apt-gross").textContent = clp(apartmentGrossValue());
+  document.getElementById("apt-debt").textContent = "−" + clp(mortgageDebt());
+  document.getElementById("apt-net").textContent = clp(apartmentNetValue());
+}
+
+function updateSaldoCredito(val) {
+  saldoCreditoUF = parseFloat(val.replace(/\./g,"").replace(/,/g,".")) || 3394.948;
+  apartmentValue = apartmentNetValue();
+  updateHero(); renderPortfolio(); refreshUpdateTotal();
+  document.getElementById("apt-gross").textContent = clp(apartmentGrossValue());
+  document.getElementById("apt-debt").textContent = "−" + clp(mortgageDebt());
+  document.getElementById("apt-net").textContent = clp(apartmentNetValue());
 }
 
 function updateFund(key, val) {
