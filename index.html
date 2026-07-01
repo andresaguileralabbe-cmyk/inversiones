@@ -329,8 +329,8 @@ const GOVT_BONUS = 45_000;
 
 // Apartment & mortgage data
 const APT_UF_COMPRA = 4100;
-let ufHoy = 40187;
-let saldoCreditoUF = 3394.948;
+let ufHoy = 40823;
+let saldoCreditoUF = 3400.74;
 
 function apartmentGrossValue() { return APT_UF_COMPRA * ufHoy; }
 function mortgageDebt() { return saldoCreditoUF * ufHoy; }
@@ -338,27 +338,26 @@ function apartmentNetValue() { return Math.max(0, apartmentGrossValue() - mortga
 let apartmentValue = apartmentNetValue();
 
 const funds = [
-  { key:"apv_p",     label:"APV Principal",     sub:"Gestión Activa Arriesgado", amount:17_557_129, color:"#38BDF8", inP:true  },
-  { key:"btg",       label:"BTG Pactual",        sub:"3 fondos — ver sub-asignación", amount:9_519_214, color:"#34D399", inP:true  },
-  { key:"apv_fin",   label:"APV Fintual",        sub:"Risky Norris",             amount:6_745_889,  color:"#818CF8", inP:true  },
-  { key:"bchile",    label:"Banco de Chile",     sub:"En migración → BTG",       amount:6_104_735,  color:"#FB923C", inP:true  },
-  { key:"santander", label:"Santander",          sub:"En migración → BTG",       amount:4_526_681,  color:"#F87171", inP:true  },
-  { key:"emerg",     label:"Reserva Emergencia", sub:"Fintual Streep A",         amount:3_009_364,  color:"#F472B6", inP:true  },
-  { key:"subaru",    label:"Subaru Bucket",      sub:"Fintual Goal",             amount:1_589_717,  color:"#A78BFA", inP:true  },
-  { key:"techito",   label:"Techito",            sub:"Pausado",                  amount:1_240_431,  color:"#FBBF24", inP:true  },
-  { key:"scotia",    label:"Scotiabank",         sub:"",                         amount:476_743,    color:"#6EE7B7", inP:true  },
-  { key:"renta",     label:"Cta Renta",          sub:"",                         amount:312_319,    color:"#93C5FD", inP:true  },
-  { key:"larrain",   label:"Larraín Vial",       sub:"",                         amount:26_317,     color:"#D1D5DB", inP:true  },
-  { key:"zaniartu",  label:"Zañartu",            sub:"Arriendo · $50k/mes",      amount:356_087,    color:"#FCD34D", inP:false },
-  { key:"mati",      label:"Ahorros Mati",       sub:"Sobrino · $50k/mes",       amount:1_592_148,  color:"#FDA4AF", inP:false },
-  { key:"casa",      label:"Casa (Familia)",     sub:"Gastos hogar/vacaciones",  amount:204_693,    color:"#86EFAC", inP:false },
-  { key:"tupungato", label:"Tupungato",          sub:"Inversión con hermano",    amount:1_716_633,  color:"#67E8F9", inP:false },
+  { key:"apv_p",     label:"APV Principal",     sub:"Gestión Activa Arriesgado", amount:18_852_561, color:"#38BDF8", inP:true  },
+  { key:"btg",       label:"BTG Pactual",        sub:"3 fondos — ver sub-asignación", amount:11_066_492, color:"#34D399", inP:true  },
+  { key:"apv_fin",   label:"APV Fintual",        sub:"Risky Norris",             amount:8_407_991,  color:"#818CF8", inP:true  },
+  { key:"bchile",    label:"Banco de Chile",     sub:"En migración → BTG",       amount:6_373_000,  color:"#FB923C", inP:true  },
+  { key:"santander", label:"Santander",          sub:"En migración → BTG",       amount:4_661_309,  color:"#F87171", inP:true  },
+  { key:"emerg",     label:"Reserva Emergencia", sub:"Fintual Streep A",         amount:4_649_660,  color:"#F472B6", inP:true  },
+  { key:"subaru",    label:"Subaru Bucket",      sub:"Fintual Goal",             amount:2_458_097,  color:"#A78BFA", inP:true  },
+  { key:"techito",   label:"Techito",            sub:"Pausado",                  amount:1_353_834,  color:"#FBBF24", inP:true  },
+  { key:"scotia",    label:"Scotiabank",         sub:"",                         amount:519_869,    color:"#6EE7B7", inP:true  },
+  { key:"renta",     label:"Cta Renta",          sub:"",                         amount:312_626,    color:"#93C5FD", inP:true  },
+  { key:"zaniartu",  label:"Zañartu",            sub:"Arriendo · $50k/mes",      amount:478_539,    color:"#FCD34D", inP:false },
+  { key:"mati",      label:"Ahorros Mati",       sub:"Sobrino · $50k/mes",       amount:1_963_460,  color:"#FDA4AF", inP:false },
+  { key:"casa",      label:"Casa (Familia)",     sub:"Gastos hogar/vacaciones",  amount:150_136,    color:"#86EFAC", inP:false },
+  { key:"tupungato", label:"Tupungato",          sub:"Inversión con hermano",    amount:1_555_194,  color:"#67E8F9", inP:false },
 ];
 
 const BTG_FUNDS = [
-  { key:"btg_sp500",   label:"Singular ETF S&P 500",        pct:0.60, color:"#34D399", note:"Core growth · pasivo · bajo costo" },
-  { key:"btg_emerg",   label:"Banchile Marketplus Emergente",pct:0.25, color:"#F472B6", note:"Diversificación · mercados emergentes" },
-  { key:"btg_quest",   label:"Quest Estrategia Activa",     pct:0.15, color:"#FBBF24", note:"Temporal · sin nuevas contribuciones" },
+  { key:"btg_sp500",   label:"Singular ETF S&P 500",         pct:0.60, color:"#34D399", note:"$2.989.811 · Core growth · pasivo" },
+  { key:"btg_emerg",   label:"Banchile Marketplus Emergente", pct:0.25, color:"#F472B6", note:"$1.527.887 · Mercados emergentes" },
+  { key:"btg_quest",   label:"Quest Estrategia Activa",       pct:0.15, color:"#FBBF24", note:"$6.548.794 · Sin nuevas contribuciones" },
 ];
 
 const GOALS = [
@@ -852,3 +851,4 @@ renderPortfolio();
 </script>
 </body>
 </html>
+
